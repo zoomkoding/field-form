@@ -76,8 +76,8 @@ export type RuleObject = BaseRule | ArrayRule;
 
 export type Rule = RuleObject | RuleRender;
 
-export interface ValidateErrorEntity {
-  values: Store;
+export interface ValidateErrorEntity<Values extends Store> {
+  values: Values;
   errorFields: { name: InternalNamePath; errors: string[] }[];
   outOfDate: boolean;
 }
@@ -113,10 +113,10 @@ export interface ValidateOptions {
   validateMessages?: ValidateMessages;
 }
 
-export type InternalValidateFields = (
+export type InternalValidateFields<Values extends Store> = (
   nameList?: NamePath[],
   options?: ValidateOptions,
-) => Promise<Store>;
+) => Promise<Values>;
 export type ValidateFields = (nameList?: NamePath[]) => Promise<Store>;
 
 // >>>>>> Info
@@ -159,19 +159,19 @@ export type ValuedNotifyInfo = NotifyInfo & {
   store: Store;
 };
 
-export interface Callbacks {
+export interface Callbacks<Values extends Store> {
   onValuesChange?: (changedValues: Store, values: Store) => void;
   onFieldsChange?: (changedFields: FieldData[], allFields: FieldData[]) => void;
-  onFinish?: (values: Store) => void;
-  onFinishFailed?: (errorInfo: ValidateErrorEntity) => void;
+  onFinish?: (values: Values) => void;
+  onFinishFailed?: (errorInfo: ValidateErrorEntity<Values>) => void;
 }
 
-export interface InternalHooks {
+export interface InternalHooks<Values extends Store> {
   dispatch: (action: ReducerAction) => void;
   registerField: (entity: FieldEntity) => () => void;
   useSubscribe: (subscribable: boolean) => void;
   setInitialValues: (values: Store, init: boolean) => void;
-  setCallbacks: (callbacks: Callbacks) => void;
+  setCallbacks: (callbacks: Callbacks<Values>) => void;
   getFields: (namePathList?: InternalNamePath[]) => FieldData[];
   setValidateMessages: (validateMessages: ValidateMessages) => void;
 }
@@ -196,8 +196,8 @@ export interface FormInstance {
   submit: () => void;
 }
 
-export type InternalFormInstance = Omit<FormInstance, 'validateFields'> & {
-  validateFields: InternalValidateFields;
+export type InternalFormInstance<Values extends Store> = Omit<FormInstance, 'validateFields'> & {
+  validateFields: InternalValidateFields<Values>;
 
   /**
    * Passed by field context props
@@ -210,7 +210,7 @@ export type InternalFormInstance = Omit<FormInstance, 'validateFields'> & {
    * Form component should register some content into store.
    * We pass the `HOOK_MARK` as key to avoid user call the function.
    */
-  getInternalHooks: (secret: string) => InternalHooks | null;
+  getInternalHooks: (secret: string) => InternalHooks<Values> | null;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

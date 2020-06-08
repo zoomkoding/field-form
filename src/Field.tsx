@@ -86,7 +86,7 @@ export interface FieldState {
 }
 
 // We use Class instead of Hooks here since it will cost much code by using Hooks.
-class Field extends React.Component<InternalFieldProps, FieldState, InternalFormInstance>
+class Field extends React.Component<InternalFieldProps, FieldState, InternalFormInstance<any>>
   implements FieldEntity {
   public static contextType = FieldContext;
 
@@ -95,7 +95,7 @@ class Field extends React.Component<InternalFieldProps, FieldState, InternalForm
     valuePropName: 'value',
   };
 
-  context: InternalFormInstance;
+  context: InternalFormInstance<any>;
 
   public state = {
     resetCount: 0,
@@ -123,7 +123,7 @@ class Field extends React.Component<InternalFieldProps, FieldState, InternalForm
   // ============================== Subscriptions ==============================
   public componentDidMount() {
     const { shouldUpdate } = this.props;
-    const { getInternalHooks }: InternalFormInstance = this.context;
+    const { getInternalHooks } = this.context;
     const { registerField } = getInternalHooks(HOOK_MARK);
     this.cancelRegisterFunc = registerField(this);
 
@@ -148,7 +148,7 @@ class Field extends React.Component<InternalFieldProps, FieldState, InternalForm
   // ================================== Utils ==================================
   public getNamePath = (): InternalNamePath => {
     const { name } = this.props;
-    const { prefixName = [] }: InternalFormInstance = this.context;
+    const { prefixName = [] } = this.context;
 
     return name !== undefined ? [...prefixName, ...name] : [];
   };
@@ -400,7 +400,7 @@ class Field extends React.Component<InternalFieldProps, FieldState, InternalForm
       validateTrigger !== undefined ? validateTrigger : this.context.validateTrigger;
 
     const namePath = this.getNamePath();
-    const { getInternalHooks, getFieldsValue }: InternalFormInstance = this.context;
+    const { getInternalHooks, getFieldsValue } = this.context;
     const { dispatch } = getInternalHooks(HOOK_MARK);
     const value = this.getValue();
     const mergedGetValueProps = getValueProps || ((val: StoreValue) => ({ [valuePropName]: val }));

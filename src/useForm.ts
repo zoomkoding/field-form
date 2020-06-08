@@ -50,7 +50,7 @@ interface ValidateAction {
 
 export type ReducerAction = UpdateAction | ValidateAction;
 
-export class FormStore {
+export class FormStore<Values extends Store> {
   private formHooked: boolean = false;
 
   private forceRootUpdate: () => void;
@@ -63,7 +63,7 @@ export class FormStore {
 
   private initialValues: Store = {};
 
-  private callbacks: Callbacks = {};
+  private callbacks: Callbacks<Values> = {};
 
   private validateMessages: ValidateMessages = null;
 
@@ -73,7 +73,7 @@ export class FormStore {
     this.forceRootUpdate = forceRootUpdate;
   }
 
-  public getForm = (): InternalFormInstance => ({
+  public getForm = (): InternalFormInstance<Values> => ({
     getFieldValue: this.getFieldValue,
     getFieldsValue: this.getFieldsValue,
     getFieldError: this.getFieldError,
@@ -92,7 +92,7 @@ export class FormStore {
   });
 
   // ======================== Internal Hooks ========================
-  private getInternalHooks = (key: string): InternalHooks | null => {
+  private getInternalHooks = (key: string): InternalHooks<Values> | null => {
     if (key === HOOK_MARK) {
       this.formHooked = true;
 
@@ -127,7 +127,7 @@ export class FormStore {
 
   private getInitialValue = (namePath: InternalNamePath) => getValue(this.initialValues, namePath);
 
-  private setCallbacks = (callbacks: Callbacks) => {
+  private setCallbacks = (callbacks: Callbacks<Values>) => {
     this.callbacks = callbacks;
   };
 
@@ -645,7 +645,7 @@ export class FormStore {
   };
 
   // =========================== Validate ===========================
-  private validateFields: InternalValidateFields = (
+  private validateFields: InternalValidateFields<Values> = (
     nameList?: NamePath[],
     options?: ValidateOptions,
   ) => {
@@ -713,7 +713,7 @@ export class FormStore {
         this.triggerOnFieldsChange(resultNamePathList, results);
       });
 
-    const returnPromise: Promise<Store | ValidateErrorEntity | string[]> = summaryPromise
+    const returnPromise: Promise<Store | ValidateErrorEntity<Values> | string[]> = summaryPromise
       .then(
         (): Promise<Store | string[]> => {
           if (this.lastValidatePromise === summaryPromise) {
@@ -732,9 +732,9 @@ export class FormStore {
       });
 
     // Do not throw in console
-    returnPromise.catch<ValidateErrorEntity>(e => e);
+    returnPromise.catch<ValidateErrorEntity<Values>>(e => e);
 
-    return returnPromise as Promise<Store>;
+    return returnPromise as Promise<Values>;
   };
 
   // ============================ Submit ============================
@@ -775,7 +775,7 @@ function useForm(form?: FormInstance): [FormInstance] {
         forceUpdate({});
       };
 
-      const formStore: FormStore = new FormStore(forceReRender);
+      const formStore: FormStore<any> = new FormStore(forceReRender);
 
       formRef.current = formStore.getForm();
     }

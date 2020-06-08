@@ -9,7 +9,7 @@ const warningFunc: any = () => {
   warning(false, 'Can not find FormContext. Please make sure you wrap Field under Form.');
 };
 
-const Context = React.createContext<InternalFormInstance>({
+const Context = React.createContext<InternalFormInstance<any>>({
   getFieldValue: warningFunc,
   getFieldsValue: warningFunc,
   getFieldError: warningFunc,
